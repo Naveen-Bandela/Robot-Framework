@@ -21,12 +21,16 @@ jobs:
           python -m pip install --upgrade pip
           pip install robotframework
           pip install robotframework-seleniumlibrary
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          pip install -r requirements.txt  # If you have additional dependencies
+
+      - name: Install Google Chrome
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y google-chrome-stable
 
       - name: Install Browser Drivers
         run: |
           sudo apt-get update
-          sudo apt-get install -y chromium-browser
           sudo apt-get install -y chromium-chromedriver
           echo "CHROMEDRIVER=$(which chromedriver)" >> $GITHUB_ENV
 
