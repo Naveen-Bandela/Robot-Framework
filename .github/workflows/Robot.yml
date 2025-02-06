@@ -27,12 +27,19 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y google-chrome-stable
+          sudo ln -sf /usr/bin/google-chrome-stable /usr/bin/google-chrome
 
       - name: Install Browser Drivers
         run: |
           sudo apt-get update
           sudo apt-get install -y chromium-chromedriver
           echo "CHROMEDRIVER=$(which chromedriver)" >> $GITHUB_ENV
+
+      - name: Verify Chrome Installation
+        run: |
+          google-chrome --version
+          which google-chrome
+          ls -l /usr/bin/google-chrome
 
       - name: Run Robot Framework Tests
         run: |
