@@ -41,23 +41,28 @@ jobs:
 
       - name: Install ChromeDriver
         run: |
-         CHROME_VERSION=$(google-chrome --version | awk '{print $3}')
-         BASE_URL="https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing"
-         CHROMEDRIVER_VERSION=$(curl -s "$BASE_URL/LATEST_RELEASE_$CHROME_VERSION")
-         wget "$BASE_URL/$CHROMEDRIVER_VERSION/linux64/chromedriver-linux64.zip"
-         unzip chromedriver-linux64.zip
-         chmod +x chromedriver-linux64/chromedriver
-         sudo mv chromedriver-linux64/chromedriver /usr/local/bin/chromedriver
-         chromedriver --version  # Debugging step
+          CHROME_VERSION=$(google-chrome --version | awk '{print $3}')
+          BASE_URL="https://googlechromelabs.github.io/chrome-for-testing/last-known-good-versions-with-downloads.json"
+    
+          # Fetch the correct ChromeDriver version
+          CHROMEDRIVER_VERSION=$(curl -s "$BASE_URL" | jq -r '.channels.Stable.downloads.chromedriver[] | select(.platform == "linux64") | .url')
+    
+          # Download and set up ChromeDriver
+          wget "$CHROMEDRIVER_VERSION" -O chromedriver-linux64.zip
+          unzip chromedriver-linux64.zip
+          chmod +x chromedriver-linux64/chromedriver
+          sudo mv chromedriver-linux64/chromedriver /usr/local/bin/chromedriver
+          chromedriver --version  # Debugging step
 
+          - name: Install jq (for JSON Parsing)
+             run: sudo apt-get install -y jq
 
-      - name: Verify Chrome & ChromeDriver Installation
+      - name: Debug Chrome & ChromeDriver Setup
         run: |
-          which google-chrome
-          which chromedriver
-          google-chrome --version
-          chromedriver --version
-          ls -l /usr/bin/google-chrome
+          which google-chrome || echo "Chrome not found!"
+          google-chrome --version || echo "Google Chrome version not found!"
+          which chromedriver || echo "ChromeDriver not found!"
+          chromedriver --version || echo "ChromeDriver version not found!"
 
       - name: Run Robot Framework Tests
         run: |
